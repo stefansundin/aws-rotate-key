@@ -17,12 +17,21 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
+const version = "1.0.0"
+
 func main() {
 	var yesFlag bool
 	var profileFlag string
+	var versionFlag bool
 	flag.BoolVar(&yesFlag, "y", false, `Automatic "yes" to prompts.`)
 	flag.StringVar(&profileFlag, "profile", "default", "The profile to use.")
+	flag.BoolVar(&versionFlag, "version", false, "Print version number ("+version+")")
 	flag.Parse()
+
+	if versionFlag {
+		fmt.Println(version)
+		os.Exit(0)
+	}
 
 	// Get credentials
 	usr, _ := user.Current()
