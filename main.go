@@ -51,21 +51,30 @@ func main() {
 	// Print key information
 	fmt.Printf("You have %d access key%v associated with your user:\n", len(respListAccessKeys.AccessKeyMetadata), pluralize(len(respListAccessKeys.AccessKeyMetadata)))
 	for _, key := range respListAccessKeys.AccessKeyMetadata {
-		fmt.Printf("- %s (%s, created %s)\n", *key.AccessKeyId, *key.Status, key.CreateDate)
+		respAccessKeyLastUsed, err2 := iamClient.GetAccessKeyLastUsed(&iam.GetAccessKeyLastUsedInput{
+			AccessKeyId: key.AccessKeyId,
+		})
+		check(err2)
+		if respAccessKeyLastUsed.AccessKeyLastUsed.LastUsedDate == nil {
+			fmt.Printf("- %s (%s, created %s, never used)\n", *key.AccessKeyId, *key.Status, key.CreateDate)
+		} else {
+			fmt.Printf("- %s (%s, created %s, last used %s for service %s in %s)\n", *key.AccessKeyId, *key.Status, key.CreateDate, respAccessKeyLastUsed.AccessKeyLastUsed.LastUsedDate, *respAccessKeyLastUsed.AccessKeyLastUsed.ServiceName, *respAccessKeyLastUsed.AccessKeyLastUsed.Region)
+		}
 	}
 	fmt.Println()
 
 	if len(respListAccessKeys.AccessKeyMetadata) == 2 {
-		var deleteAccessKeyID *string
+		keyIndex := 0
 		if *respListAccessKeys.AccessKeyMetadata[0].AccessKeyId == creds.AccessKeyID {
-			deleteAccessKeyID = respListAccessKeys.AccessKeyMetadata[1].AccessKeyId
-		} else {
-			deleteAccessKeyID = respListAccessKeys.AccessKeyMetadata[0].AccessKeyId
+			keyIndex = 1
 		}
 
 		if yesFlag == false {
 			fmt.Println("You have two access keys, which is the max number of access keys.")
-			fmt.Printf("Do you want to delete %s and create a new key? [yN] ", *deleteAccessKeyID)
+			fmt.Printf("Do you want to delete %s and create a new key? [yN] ", *respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId)
+			if *respListAccessKeys.AccessKeyMetadata[keyIndex].Status == "Active" {
+				fmt.Printf("\nWARNING: This key is currently Active! ")
+			}
 			reader := bufio.NewReader(os.Stdin)
 			yn, err2 := reader.ReadString('\n')
 			check(err2)
@@ -75,10 +84,10 @@ func main() {
 		}
 
 		_, err2 := iamClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
-			AccessKeyId: deleteAccessKeyID,
+			AccessKeyId: respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId,
 		})
 		check(err2)
-		fmt.Printf("Deleted access key %s.\n", *deleteAccessKeyID)
+		fmt.Printf("Deleted access key %s.\n", *respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId)
 	} else if yesFlag == false {
 		fmt.Printf("Do you want to create a new key and deactivate %s? [yN] ", *respListAccessKeys.AccessKeyMetadata[0].AccessKeyId)
 		reader := bufio.NewReader(os.Stdin)
