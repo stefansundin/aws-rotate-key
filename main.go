@@ -123,6 +123,12 @@ func main() {
 	if !strings.Contains(text, *respCreateAccessKey.AccessKey.AccessKeyId) || !strings.Contains(text, *respCreateAccessKey.AccessKey.SecretAccessKey) {
 		fmt.Println("Failed to replace old access key. Aborting.")
 		fmt.Printf("Please verify that the file %s is formatted correctly.\n", credentialsPath)
+		// Delete the key we created
+		_, err2 := iamClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
+			AccessKeyId: respCreateAccessKey.AccessKey.AccessKeyId,
+		})
+		check(err2)
+		fmt.Printf("Deleted access key %s.\n", *respCreateAccessKey.AccessKey.AccessKeyId)
 		os.Exit(1)
 	}
 
