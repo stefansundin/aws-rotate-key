@@ -2,3 +2,5 @@ Thumbs.db
 *.DS_Store
 *.swp
 aws-rotate-key
+aws-rotate-key.exe
+release/
