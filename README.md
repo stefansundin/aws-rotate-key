@@ -12,11 +12,15 @@ console and reactivate it.
 If you already have two keys, the program will ask you if you want to delete the
 one you are not currently using.
 
-To download and hack on the source code, run:
+## Binaries
+
+There are 64-bit binaries in [the releases section](https://github.com/Fullscreen/aws-rotate-key/releases/latest).
+
+You can use our homebrew tap on Mac:
+
 ```
-$ go get -u github.com/Fullscreen/aws-rotate-key
-$ cd $GOPATH/src/github.com/Fullscreen/aws-rotate-key
-$ go build
+brew tap fullscreen/tap
+brew install aws-rotate-key
 ```
 
 ## IAM policy
@@ -46,3 +50,12 @@ example policy you can create:
 ```
 
 Replace `AWS_ACCOUNT_ID` with your AWS account id.
+
+## Contribute
+
+To download and hack on the source code, run:
+```
+$ go get -u github.com/Fullscreen/aws-rotate-key
+$ cd $GOPATH/src/github.com/Fullscreen/aws-rotate-key
+$ go build
+```
