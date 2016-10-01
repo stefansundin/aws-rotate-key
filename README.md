@@ -1,22 +1,20 @@
 # aws-rotate-key
 
-Easily rotate all of the AWS access keys defined in your local 
+As a security best practice, AWS recommends that administrators require
+IAM users to periodically [regenerate their API access keys](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_RotateAccessKey).
+This `aws-rotate-key` tool allows users to easily rotate all of the AWS access keys defined in their local 
 [aws credentials file](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-multiple-profiles).
 
-By running `aws-rotate-key`, the program will find out what AWS key you have,
-rotate it for you, and then update your credentials file.
-
-The program will use the AWS API to check which API access keys you
-have created for the provided profile. If you only have a single access
-key, then it will deactivate the key currently configured in your 
-credentials file and update your credentials file to use a newly 
+The program will use the AWS API to check which access keys exist
+for the provided profile. If only one access key exists, then it will
+deactivate that key and update your credentials file to use a newly 
 generated key. The old key will only be deactivated (**not** deleted),
 so that if you later find out you use the old key elsewhere, you
-can open the AWS console and reactivate it. If you already have two
-access keys for the provided profile, the program will ask you if
-you want to delete the key not currently configured in your credentials
-file. Then, it will perform the key rotation logic now that you have
-a single access key.
+can open the AWS console and reactivate it. If two access keys exist,
+then you will be asked whether you want to delete the key which is
+not currently configured in your credentials file to create an empty
+slot for the key rotation. Then, it will perform the same key rotation 
+logic on the remaining key.
 
 
 ## Usage
@@ -63,10 +61,11 @@ brew install aws-rotate-key
 aws-rotate-key
 ```
 
-## IAM policy
+## Setup
 
-Make sure your users have permissions to update their access keys. Here is an
-example policy you can create:
+Make sure your users have permissions to update their own access keys via the CLI. The AWS
+documentation [here](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_delegate-permissions_examples.html#creds-policies-credentials)
+explains the required permissions and the following IAM profile should get you setup:
 
 ```json
 {
