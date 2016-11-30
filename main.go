@@ -48,7 +48,11 @@ func main() {
 	// sts get-caller-identity
 	stsClient := sts.New(sess)
 	respGetCallerIdentity, err := stsClient.GetCallerIdentity(&sts.GetCallerIdentityInput{})
-	check(err)
+	if err != nil {
+		fmt.Println("Error getting caller identity. Is the key disabled?")
+		fmt.Println()
+		check(err)
+	}
 	fmt.Printf("Your user arn is: %s\n\n", *respGetCallerIdentity.Arn)
 
 	// iam list-access-keys
