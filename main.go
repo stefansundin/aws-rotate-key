@@ -35,7 +35,12 @@ func main() {
 
 	// Get credentials
 	usr, _ := user.Current()
-	credentialsPath := fmt.Sprintf("%s/.aws/credentials", usr.HomeDir)
+
+	credentialsPath := os.Getenv("AWS_SHARED_CREDENTIALS_FILE")
+	if len(credentialsPath) == 0 {
+		credentialsPath = fmt.Sprintf("%s/.aws/credentials", usr.HomeDir)
+	}
+
 	credentialsProvider := credentials.NewSharedCredentials(credentialsPath, profileFlag)
 	creds, err := credentialsProvider.Get()
 	check(err)
