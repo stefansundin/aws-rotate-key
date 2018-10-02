@@ -23,7 +23,7 @@ Usage of aws-rotate-key:
   -profile string
     	The profile to use. (default "default")
   -version
-    	Print version number (1.0.0)
+    	Print version number (1.0.3)
   -y	Automatic "yes" to prompts.
 ```
 

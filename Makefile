@@ -1,4 +1,4 @@
-VERSION = 1.0.0
+VERSION = 1.0.3
 LDFLAGS = -ldflags '-s -w'
 GOARCH = amd64
 linux: export GOOS=linux
