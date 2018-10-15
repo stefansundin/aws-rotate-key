@@ -23,7 +23,9 @@ func main() {
 	var yesFlag bool
 	var profileFlag string
 	var versionFlag bool
+	var deleteFlag bool
 	flag.BoolVar(&yesFlag, "y", false, `Automatic "yes" to prompts.`)
+	flag.BoolVar(&deleteFlag, "d", false, "Delete old key without deactivation.")
 	flag.StringVar(&profileFlag, "profile", "default", "The profile to use.")
 	flag.BoolVar(&versionFlag, "version", false, "Print version number ("+version+")")
 	flag.Parse()
@@ -155,13 +157,22 @@ func main() {
 	check(err)
 	fmt.Printf("Wrote new key pair to %s\n", credentialsPath)
 
-	_, err = iamClient.UpdateAccessKey(&iam.UpdateAccessKeyInput{
-		AccessKeyId: &creds.AccessKeyID,
-		Status:      aws.String("Inactive"),
-	})
-	check(err)
-	fmt.Printf("Deactivated old access key %s.\n", creds.AccessKeyID)
-	fmt.Println("Please make sure this key is not used elsewhere.")
+	// Deleting the key if flag is set, otherwise only deactivating
+	if deleteFlag {
+		_, err := iamClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
+			AccessKeyId: &creds.AccessKeyID,
+		})
+		check(err)
+		fmt.Printf("Deleted old access key %s.\n", creds.AccessKeyID)
+	} else {
+		_, err = iamClient.UpdateAccessKey(&iam.UpdateAccessKeyInput{
+			AccessKeyId: &creds.AccessKeyID,
+			Status:      aws.String("Inactive"),
+		})
+		check(err)
+		fmt.Printf("Deactivated old access key %s.\n", creds.AccessKeyID)
+		fmt.Println("Please make sure this key is not used elsewhere.")
+	}
 }
 
 func pluralize(n int) string {

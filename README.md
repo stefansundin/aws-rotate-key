@@ -24,7 +24,10 @@ Usage of aws-rotate-key:
     	The profile to use. (default "default")
   -version
     	Print version number (1.0.3)
-  -y	Automatic "yes" to prompts.
+  -y
+        Automatic "yes" to prompts.
+  -d
+        Delete old key without deactivation.
 ```
 
 ## Example
