@@ -27,7 +27,7 @@ func main() {
 	flag.BoolVar(&yesFlag, "y", false, `Automatic "yes" to prompts.`)
 	flag.BoolVar(&deleteFlag, "d", false, "Delete old key without deactivation.")
 	flag.StringVar(&profileFlag, "profile", "default", "The profile to use.")
-	flag.BoolVar(&versionFlag, "version", false, "Print version number ("+version+")")
+	flag.BoolVar(&versionFlag, "version", false, "Print version number")
 	flag.Parse()
 
 	if versionFlag {
@@ -191,6 +191,7 @@ func main() {
 		fmt.Printf("Deactivated old access key %s.\n", creds.AccessKeyID)
 		fmt.Println("Please make sure this key is not used elsewhere.")
 	}
+	fmt.Println("Please note that it may take a minute for your new access key to propagate in the AWS control plane.")
 }
 
 func pluralize(n int) string {
