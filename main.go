@@ -36,10 +36,13 @@ func main() {
 	}
 
 	// Get credentials
-	usr, _ := user.Current()
-
 	credentialsPath := os.Getenv("AWS_SHARED_CREDENTIALS_FILE")
 	if len(credentialsPath) == 0 {
+		usr, err := user.Current()
+		if err != nil {
+			fmt.Println("Error: Could not locate your home directory. Please set the AWS_SHARED_CREDENTIALS_FILE environment variable.")
+			os.Exit(1)
+		}
 		credentialsPath = fmt.Sprintf("%s/.aws/credentials", usr.HomeDir)
 	}
 
