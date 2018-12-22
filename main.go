@@ -48,6 +48,25 @@ func main() {
 	check(err)
 	fmt.Printf("Using access key %s from profile \"%s\".\n", creds.AccessKeyID, profileFlag)
 
+	// Read credentials file
+	bytes, err := ioutil.ReadFile(credentialsPath)
+	check(err)
+	credentialsText := string(bytes)
+	// Check if we can find the credentials in the file
+	// It's better to detect a malformed file now than after we have created the new key
+	re_aws_access_key_id := regexp.MustCompile(fmt.Sprintf(`(?m)^aws_access_key_id ?= ?%s`, regexp.QuoteMeta(creds.AccessKeyID)))
+	re_aws_secret_access_key := regexp.MustCompile(fmt.Sprintf(`(?m)^aws_secret_access_key ?= ?%s`, regexp.QuoteMeta(creds.SecretAccessKey)))
+	if !re_aws_access_key_id.MatchString(credentialsText) || !re_aws_secret_access_key.MatchString(credentialsText) {
+		fmt.Println()
+		fmt.Printf("Unable to find your credentials in %s.\n", credentialsPath)
+		fmt.Println("Please make sure your file is formatted like the following:")
+		fmt.Println()
+		fmt.Printf("aws_access_key_id=%s\n", creds.AccessKeyID)
+		fmt.Println("aws_secret_access_key=...")
+		fmt.Println()
+		os.Exit(1)
+	}
+
 	// Create session
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
@@ -129,20 +148,13 @@ func main() {
 	}
 	fmt.Printf("Created access key %s.\n", *respCreateAccessKey.AccessKey.AccessKeyId)
 
-	// Read credentials file
-	bytes, err := ioutil.ReadFile(credentialsPath)
-	check(err)
-	text := string(bytes)
-
 	// Replace key pair in credentials file
 	// This search & replace does not limit itself to the specified profile, which may be useful if the user is using the same key in multiple profiles
-	re := regexp.MustCompile(fmt.Sprintf(`(?m)^aws_access_key_id ?= ?%s`, regexp.QuoteMeta(creds.AccessKeyID)))
-	text = re.ReplaceAllString(text, `aws_access_key_id=`+*respCreateAccessKey.AccessKey.AccessKeyId)
-	re = regexp.MustCompile(fmt.Sprintf(`(?m)^aws_secret_access_key ?= ?%s`, regexp.QuoteMeta(creds.SecretAccessKey)))
-	text = re.ReplaceAllString(text, `aws_secret_access_key=`+*respCreateAccessKey.AccessKey.SecretAccessKey)
+	credentialsText = re_aws_access_key_id.ReplaceAllString(credentialsText, `aws_access_key_id=`+*respCreateAccessKey.AccessKey.AccessKeyId)
+	credentialsText = re_aws_secret_access_key.ReplaceAllString(credentialsText, `aws_secret_access_key=`+*respCreateAccessKey.AccessKey.SecretAccessKey)
 
 	// Verify that the regexp actually replaced something
-	if !strings.Contains(text, *respCreateAccessKey.AccessKey.AccessKeyId) || !strings.Contains(text, *respCreateAccessKey.AccessKey.SecretAccessKey) {
+	if !strings.Contains(credentialsText, *respCreateAccessKey.AccessKey.AccessKeyId) || !strings.Contains(credentialsText, *respCreateAccessKey.AccessKey.SecretAccessKey) {
 		fmt.Println("Failed to replace old access key. Aborting.")
 		fmt.Printf("Please verify that the file %s is formatted correctly.\n", credentialsPath)
 		// Delete the key we created
@@ -155,7 +167,7 @@ func main() {
 	}
 
 	// Write new file
-	err = ioutil.WriteFile(credentialsPath, []byte(text), 0600)
+	err = ioutil.WriteFile(credentialsPath, []byte(credentialsText), 0600)
 	check(err)
 	fmt.Printf("Wrote new key pair to %s\n", credentialsPath)
 
