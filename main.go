@@ -81,7 +81,7 @@ func main() {
 		fmt.Println()
 		check(err)
 	}
-	fmt.Printf("Your user arn is: %s\n\n", *respGetCallerIdentity.Arn)
+	fmt.Printf("Your user ARN is: %s\n\n", *respGetCallerIdentity.Arn)
 
 	// iam list-access-keys
 	// If the UserName field is not specified, the UserName is determined implicitly based on the AWS access key ID used to sign the request.
@@ -95,8 +95,9 @@ func main() {
 		respAccessKeyLastUsed, err2 := iamClient.GetAccessKeyLastUsed(&iam.GetAccessKeyLastUsedInput{
 			AccessKeyId: key.AccessKeyId,
 		})
-		check(err2)
-		if respAccessKeyLastUsed.AccessKeyLastUsed.LastUsedDate == nil {
+		if err2 != nil {
+			fmt.Printf("- %s (%s, created %s)\n", *key.AccessKeyId, *key.Status, key.CreateDate)
+		} else if respAccessKeyLastUsed.AccessKeyLastUsed.LastUsedDate == nil {
 			fmt.Printf("- %s (%s, created %s, never used)\n", *key.AccessKeyId, *key.Status, key.CreateDate)
 		} else {
 			fmt.Printf("- %s (%s, created %s, last used %s for service %s in %s)\n", *key.AccessKeyId, *key.Status, key.CreateDate, respAccessKeyLastUsed.AccessKeyLastUsed.LastUsedDate, *respAccessKeyLastUsed.AccessKeyLastUsed.ServiceName, *respAccessKeyLastUsed.AccessKeyLastUsed.Region)

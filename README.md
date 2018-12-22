@@ -34,12 +34,12 @@ Usage of aws-rotate-key:
 ## Example
 
 ```
-someone$ aws-rotate-key --profile primary
+$ aws-rotate-key --profile primary
 Using access key A123 from profile "primary".
-Your user arn is: arn:aws:iam::123456789012:user/someone@example.com
+Your user ARN is: arn:aws:iam::123456789012:user/someone
 
 You have 2 access keys associated with your user:
--A123 (Inactive, created 2015-01-01 02:55:00 +0000 UTC, last used 2016-01-01 00:02:00 +0000 UTC for service sts in us-east-1)
+- A123 (Inactive, created 2015-01-01 02:55:00 +0000 UTC, last used 2016-01-01 00:02:00 +0000 UTC for service sts in us-east-1)
 - B123 (Active, created 2016-01-01 00:02:47 +0000 UTC, last used 2016-01-01 00:03:00 +0000 UTC for service s3 in N/A)
 
 You have two access keys, which is the max number of access keys.
@@ -76,6 +76,7 @@ explains the required permissions and the following IAM profile should get you s
     "Version": "2012-10-17",
     "Statement": [
         {
+            "Effect": "Allow",
             "Action": [
                 "iam:ListAccessKeys",
                 "iam:GetAccessKeyLastUsed",
@@ -83,7 +84,6 @@ explains the required permissions and the following IAM profile should get you s
                 "iam:CreateAccessKey",
                 "iam:UpdateAccessKey"
             ],
-            "Effect": "Allow",
             "Resource": [
                 "arn:aws:iam::AWS_ACCOUNT_ID:user/${aws:username}"
             ]
