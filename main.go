@@ -17,7 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-const version = "1.0.4"
+const version = "1.0.5"
 
 func main() {
 	var yesFlag bool
@@ -49,8 +49,10 @@ func main() {
 	fmt.Printf("Using access key %s from profile \"%s\".\n", creds.AccessKeyID, profileFlag)
 
 	// Create session
-	sess, err := session.NewSession(&aws.Config{Credentials: credentialsProvider})
-	check(err)
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+		Profile:           profileFlag,
+	}))
 
 	// sts get-caller-identity
 	stsClient := sts.New(sess)
