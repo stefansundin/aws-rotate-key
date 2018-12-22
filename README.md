@@ -98,7 +98,7 @@ Replace `AWS_ACCOUNT_ID` with your AWS account id.
 
 To download and hack on the source code, run:
 ```
-$ go get -u github.com/Fullscreen/aws-rotate-key
-$ cd $GOPATH/src/github.com/Fullscreen/aws-rotate-key
+$ git clone https://github.com/Fullscreen/aws-rotate-key.git
+$ cd aws-rotate-key
 $ go build
 ```
