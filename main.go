@@ -49,8 +49,10 @@ func main() {
 	fmt.Printf("Using access key %s from profile \"%s\".\n", creds.AccessKeyID, profileFlag)
 
 	// Create session
-	sess, err := session.NewSessionWithOptions(session.Options{Profile: profileFlag,})
-	check(err)
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+		Profile:           profileFlag,
+	}))
 
 	// sts get-caller-identity
 	stsClient := sts.New(sess)
