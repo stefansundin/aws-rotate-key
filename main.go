@@ -21,10 +21,12 @@ const version = "1.0.5"
 
 func main() {
 	var yesFlag bool
+	var mfaFlag bool
 	var profileFlag string
 	var versionFlag bool
 	var deleteFlag bool
 	flag.BoolVar(&yesFlag, "y", false, `Automatic "yes" to prompts.`)
+	flag.BoolVar(&mfaFlag, "mfa", false, "Use MFA.")
 	flag.BoolVar(&deleteFlag, "d", false, "Delete old key without deactivation.")
 	flag.StringVar(&profileFlag, "profile", "default", "The profile to use.")
 	flag.BoolVar(&versionFlag, "version", false, "Print version number")
@@ -84,7 +86,57 @@ func main() {
 		fmt.Println()
 		check(err)
 	}
-	fmt.Printf("Your user ARN is: %s\n\n", *respGetCallerIdentity.Arn)
+	fmt.Printf("Your user ARN is: %s\n", *respGetCallerIdentity.Arn)
+
+	// mfa
+	if mfaFlag {
+		// We have to pick the last element in case the user has a path associated with it (versus naively using [1]).
+		// It's probably very rare that people use paths but we should support it.
+		userArnSplit := strings.Split(*respGetCallerIdentity.Arn, "/")
+		username := userArnSplit[len(userArnSplit)-1]
+
+		iamClient := iam.New(sess)
+		respMFADevices, err := iamClient.ListMFADevices(&iam.ListMFADevicesInput{
+			UserName: aws.String(username),
+		})
+		check(err)
+		if len(respMFADevices.MFADevices) == 0 {
+			fmt.Println("You do not have an MFA device associated with your user. Aborting.")
+			os.Exit(1)
+		}
+		fmt.Printf("Your MFA ARN is:  %s\n\n", *respMFADevices.MFADevices[0].SerialNumber)
+
+		// I have no idea how much work it would be to support U2F
+		serialNumberSplit := strings.Split(*respMFADevices.MFADevices[0].SerialNumber, ":")
+		if strings.HasPrefix(serialNumberSplit[5], "u2f/") {
+			fmt.Println("Sorry, U2F MFAs are not supported. Aborting.")
+			os.Exit(1)
+		}
+
+		// Prompt for the code
+		var code string
+		fmt.Print("MFA token code: ")
+		_, err = fmt.Scanln(&code)
+		check(err)
+
+		// Get the new credentials
+		respSessionToken, err := stsClient.GetSessionToken(&sts.GetSessionTokenInput{
+			DurationSeconds: aws.Int64(900), // valid for 15 minutes (the minimum)
+			SerialNumber:    respMFADevices.MFADevices[0].SerialNumber,
+			TokenCode:       aws.String(code),
+		})
+		check(err)
+
+		// Create a new session that use the new credentials
+		c := respSessionToken.Credentials
+		mfaCreds := credentials.NewStaticCredentials(*c.AccessKeyId, *c.SecretAccessKey, *c.SessionToken)
+		sess = session.Must(session.NewSessionWithOptions(session.Options{
+			SharedConfigState: session.SharedConfigEnable,
+			Profile:           profileFlag,
+			Config:            aws.Config{Credentials: mfaCreds},
+		}))
+	}
+	fmt.Println()
 
 	// iam list-access-keys
 	// If the UserName field is not specified, the UserName is determined implicitly based on the AWS access key ID used to sign the request.
