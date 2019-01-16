@@ -15,6 +15,8 @@ It will then wait for your confirmation before continuing.
 $ aws-rotate-key --help
 Usage of aws-rotate-key:
   -d	Delete old key without deactivation.
+  -mfa
+    	Use MFA.
   -profile string
     	The profile to use. (default "default")
   -version
@@ -81,6 +83,50 @@ The following IAM policy is enough for aws-rotate-key:
 ```
 
 Replace `AWS_ACCOUNT_ID` with your AWS account id.
+
+### Require MFA
+
+You can require MFA by adding a `Condition` clause. Please note that you
+have to use the `-mfa` option when running the program.
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:ListMFADevices"
+            ],
+            "Resource": [
+                "arn:aws:iam::AWS_ACCOUNT_ID:user/${aws:username}"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:ListAccessKeys",
+                "iam:GetAccessKeyLastUsed",
+                "iam:DeleteAccessKey",
+                "iam:CreateAccessKey",
+                "iam:UpdateAccessKey"
+            ],
+            "Resource": [
+                "arn:aws:iam::AWS_ACCOUNT_ID:user/${aws:username}"
+            ],
+            "Condition": {
+                "Bool": {
+                    "aws:MultiFactorAuthPresent": true
+                }
+            }
+        }
+    ]
+}
+```
+
+Note that this makes it hard to rotate the key using regular aws-cli commands,
+as it only supports MFA when assuming roles. You will still be able to use
+the AWS management console.
 
 ## Contribute
 
