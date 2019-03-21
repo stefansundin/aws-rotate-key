@@ -15,9 +15,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/sts"
+
+	"github.com/Fullscreen/aws-rotate-key/maven"
 )
 
-const version = "1.0.6"
+const version = "1.0.7"
 
 func main() {
 	var yesFlag bool
@@ -226,6 +228,18 @@ func main() {
 	err = ioutil.WriteFile(credentialsPath, []byte(credentialsText), 0600)
 	check(err)
 	fmt.Printf("Wrote new key pair to %s\n", credentialsPath)
+
+	// Update Maven settings
+	s := maven.FindSettings(os.Getenv("HOME"))
+	if s != nil {
+		accessKey := *respCreateAccessKey.AccessKey
+		err = s.Update(&creds, &credentials.Value{
+			AccessKeyID:     *accessKey.AccessKeyId,
+			SecretAccessKey: *accessKey.SecretAccessKey,
+		})
+		check(err)
+		fmt.Printf("Updated AWS credentials in Maven settings: %s\n", s)
+	}
 
 	// Deleting the key if flag is set, otherwise only deactivating
 	if deleteFlag {

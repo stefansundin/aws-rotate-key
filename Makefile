@@ -1,4 +1,4 @@
-VERSION = 1.0.6
+VERSION = 1.0.7
 LDFLAGS = -ldflags '-s -w'
 GOARCH = amd64
 linux: export GOOS=linux
@@ -10,7 +10,10 @@ linux_arm64: export GOARCH=arm64
 darwin: export GOOS=darwin
 windows: export GOOS=windows
 
-all: linux linux_arm linux_arm64 darwin windows
+all: test linux linux_arm linux_arm64 darwin windows
+
+test:
+	go test -v ./...
 
 linux:
 	go build $(LDFLAGS)
