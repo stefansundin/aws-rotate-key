@@ -59,8 +59,8 @@ func main() {
 	credentialsText := string(bytes)
 	// Check if we can find the credentials in the file
 	// It's better to detect a malformed file now than after we have created the new key
-	re_aws_access_key_id := regexp.MustCompile(fmt.Sprintf(`(?m)^aws_access_key_id ?= ?%s`, regexp.QuoteMeta(creds.AccessKeyID)))
-	re_aws_secret_access_key := regexp.MustCompile(fmt.Sprintf(`(?m)^aws_secret_access_key ?= ?%s`, regexp.QuoteMeta(creds.SecretAccessKey)))
+	re_aws_access_key_id := regexp.MustCompile(fmt.Sprintf(`(?m)^aws_access_key_id *= *%s`, regexp.QuoteMeta(creds.AccessKeyID)))
+	re_aws_secret_access_key := regexp.MustCompile(fmt.Sprintf(`(?m)^aws_secret_access_key *= *%s`, regexp.QuoteMeta(creds.SecretAccessKey)))
 	if !re_aws_access_key_id.MatchString(credentialsText) || !re_aws_secret_access_key.MatchString(credentialsText) {
 		fmt.Println()
 		fmt.Printf("Unable to find your credentials in %s.\n", credentialsPath)
