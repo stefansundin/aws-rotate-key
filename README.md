@@ -47,12 +47,12 @@ Please note that it may take a minute for your new access key to propagate in th
 
 ## Install
 
-You can download binaries from [the releases section](https://github.com/Fullscreen/aws-rotate-key/releases/latest).
+You can download binaries from [the releases section](https://github.com/stefansundin/aws-rotate-key/releases/latest).
 
-You can also use our Homebrew tap on macOS:
+You can also use this Homebrew tap on macOS:
 
 ```
-brew install fullscreen/tap/aws-rotate-key
+brew install stefansundin/tap/aws-rotate-key
 ```
 
 ## Setup
@@ -132,7 +132,7 @@ the AWS management console.
 
 To download and hack on the source code, run:
 ```
-$ git clone https://github.com/Fullscreen/aws-rotate-key.git
+$ git clone https://github.com/stefansundin/aws-rotate-key.git
 $ cd aws-rotate-key
 $ go build
 ```
