@@ -49,15 +49,17 @@ Please note that it may take a minute for your new access key to propagate in th
 
 You can download binaries from [the releases section](https://github.com/stefansundin/aws-rotate-key/releases/latest).
 
-You can also use this Homebrew tap on macOS:
+You can use Homebrew to install on macOS:
 
 ```
-brew install stefansundin/tap/aws-rotate-key
+$ brew install stefansundin/tap/aws-rotate-key
 ```
 
 ## Setup
 
-Make sure your users have permissions to update their own access keys. The following AWS documentation page explains the required permissions: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_delegate-permissions_examples.html#creds-policies-credentials.
+Make sure your users have permissions to update their own access keys.
+The following AWS documentation page explains the required permissions:
+https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_delegate-permissions_examples.html#creds-policies-credentials.
 
 The following IAM policy is enough for aws-rotate-key:
 
@@ -124,13 +126,14 @@ have to use the `-mfa` option when running the program.
 }
 ```
 
-Note that this makes it hard to rotate the key using regular aws-cli commands,
+Note that this makes it harder to rotate access keys using aws-cli commands,
 as it only supports MFA when assuming roles. You will still be able to use
 the AWS management console.
 
 ## Contribute
 
 To download and hack on the source code, run:
+
 ```
 $ git clone https://github.com/stefansundin/aws-rotate-key.git
 $ cd aws-rotate-key
