@@ -198,10 +198,7 @@ func main() {
 	// Create the new access key
 	// If you do not specify a user name, IAM determines the user name implicitly based on the AWS access key ID signing the request.
 	respCreateAccessKey, err := iamClient.CreateAccessKey(&iam.CreateAccessKeyInput{})
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		return
-	}
+	check(err)
 	fmt.Printf("Created access key %s.\n", *respCreateAccessKey.AccessKey.AccessKeyId)
 
 	// Replace key pair in credentials file
