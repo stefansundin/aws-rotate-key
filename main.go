@@ -186,7 +186,11 @@ func main() {
 		check(err2)
 		fmt.Printf("Deleted access key %s.\n", *respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId)
 	} else if yesFlag == false {
-		fmt.Printf("Do you want to create a new key and deactivate %s? [yN] ", *respListAccessKeys.AccessKeyMetadata[0].AccessKeyId)
+		cleanupAction := "deactivate"
+		if deleteFlag {
+			cleanupAction = "delete"
+		}
+		fmt.Printf("Do you want to create a new key and %s %s? [yN] ", cleanupAction, *respListAccessKeys.AccessKeyMetadata[0].AccessKeyId)
 		reader := bufio.NewReader(os.Stdin)
 		yn, err2 := reader.ReadString('\n')
 		check(err2)
@@ -224,7 +228,7 @@ func main() {
 	check(err)
 	fmt.Printf("Wrote new key pair to %s\n", credentialsPath)
 
-	// Deleting the key if flag is set, otherwise only deactivating
+	// Delete the old key if flag is set, otherwise deactivate it
 	if deleteFlag {
 		_, err := iamClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
 			AccessKeyId: &creds.AccessKeyID,
