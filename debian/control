@@ -1,0 +1,22 @@
+Source: aws-rotate-key
+Maintainer: Stefan Sundin <stefan@stefansundin.com>
+Section: devel
+Priority: optional
+Build-Depends:
+ debhelper-compat (= 12),
+ dh-golang,
+Build-Depends-Arch:
+ golang-any,
+ golang-github-aws-aws-sdk-go-dev,
+Standards-Version: 4.4.0
+Rules-Requires-Root: no
+Homepage: https://github.com/stefansundin/aws-rotate-key
+XS-Go-Import-Path: github.com/stefansundin/aws-rotate-key
+
+Package: aws-rotate-key
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+Built-Using: ${misc:Built-Using}
+Description: Easily rotate your AWS access key.

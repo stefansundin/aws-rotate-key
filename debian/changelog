@@ -1,0 +1,6 @@
+aws-rotate-key (1.0.7-1) eoan; urgency=medium
+
+  * Debian package created.
+
+ -- Stefan Sundin <stefan@stefansundin.com>  Wed, 08 Jan 2020 15:50:11 -0800
+
