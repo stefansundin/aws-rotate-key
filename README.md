@@ -52,7 +52,14 @@ You can download binaries from [the releases section](https://github.com/stefans
 You can use Homebrew to install on macOS:
 
 ```
-$ brew install stefansundin/tap/aws-rotate-key
+brew install stefansundin/tap/aws-rotate-key
+```
+
+You can install [using a PPA](https://launchpad.net/~stefansundin/+archive/ubuntu/aws-rotate-key) on Ubuntu Linux:
+
+```
+sudo add-apt-repository ppa:stefansundin/aws-rotate-key
+sudo apt install aws-rotate-key
 ```
 
 ## Setup
@@ -135,7 +142,7 @@ the AWS management console.
 To download and hack on the source code, run:
 
 ```
-$ git clone https://github.com/stefansundin/aws-rotate-key.git
-$ cd aws-rotate-key
-$ go build
+git clone https://github.com/stefansundin/aws-rotate-key.git
+cd aws-rotate-key
+go build
 ```
