@@ -1,0 +1,8 @@
+#cloud-config
+runcmd:
+- |
+  export DEBIAN_FRONTEND=noninteractive
+  add-apt-repository -y ppa:jfi/ppastats
+  apt-get update
+  apt-get upgrade -y
+  apt-get install -y ppastats
