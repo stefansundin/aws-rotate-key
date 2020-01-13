@@ -1,0 +1,7 @@
+table.jqplot-table-legend {
+    width: auto;
+}
+
+#pkgs, #distros > ul, #versions > ul{
+    list-style-type: none;
+}

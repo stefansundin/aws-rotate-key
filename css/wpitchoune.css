@@ -1,0 +1,175 @@
+
+body {
+    background: #e2e2e2;
+    color: #333333;
+    font-family: Ubuntu,Arial,sans-serif;
+    line-height: 1.6;
+    font-weight: lighter;
+    margin: 1em 1em 1em 1em;
+    padding: 0 0 0 0;
+}
+
+h1 {
+    font-size: 2.813em;
+    margin: 0 0 0.267em 0;
+    padding: 0 0 0 0;
+    font-weight: normal;
+}
+
+h2 {
+    font-size: 2em;
+    margin: 0 0 0.375em;
+    padding: 0 0 0 0;
+    font-weight: normal;
+}
+
+h3 {
+    font-size: 1.438em;
+    margin: 0 0 0.522em;
+    padding: 0 0 0 0;
+    font-weight: normal;
+}
+
+h4 {
+    font-size: 1.219em;
+    margin: 0 0 0.615em;
+    padding: 0 0 0 0;
+    font-weight: normal;
+}
+
+h5 {
+    font-size: 1em;
+    margin: 0 0 0.75em;
+    padding: 0 0 0 0;
+    font-weight: bold;
+}
+
+h6 {
+    font-weight: normal;
+    font-size: 0.813em;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.923em;
+    text-transform: uppercase;
+    padding: 0 0 0 0;
+}
+
+em {
+    font-weight: bold;
+    font-style: normal;
+}
+
+li {
+    margin: 0 0 0 1em;
+    line-height: 1.6;
+}
+
+li p {
+    margin: 0 0 0 0;
+}
+
+ul {
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+a:link, a:visited {
+    color: #19B6EE;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+code, pre, tt {
+    font-family: "Ubuntu Mono","Courier New",Courier,monospace;
+    font-weight: normal;
+    color: #333333;
+}
+
+pre {
+    background: none repeat scroll 0 0 #e0e0e0;
+    border-radius: 4px;
+    padding: 0.5em 0.5em;
+    margin: 0 0 0 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+table {
+    width: 100%;
+    text-align: left;
+}
+
+#footer {
+    margin: 0 0 0 0;
+    font-size: 0.8em;
+    font-weight: lighter;
+    clear: both;
+    text-align: right;
+}
+
+#page {
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+#main, #menu {
+    background: #ffffff;
+    
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+
+    padding: 1em 1em 1em 1em;
+
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    
+    -webkit-box-shadow: 0 2px 2px 0 #C2C2C2;
+    box-shadow: 0 2px 2px 0 #C2C2C2;
+}
+
+#menu-list, #menu-list > li > ul  {
+    list-style-type: none;
+}
+
+/* menu on left col, content on right col */
+
+#menu {
+    float: left;
+    width: 19%;
+}
+
+#main {
+    float: right;
+    width: 80%;
+}
+
+/* asciidoc */
+
+#toc, #content {
+    margin: 0em 0em 2em 0em;
+    
+    background: #ffffff;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 2em 2em 2em 2em;
+
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    
+    -webkit-box-shadow: 0 2px 2px 0 #C2C2C2;
+    box-shadow: 0 2px 2px 0 #C2C2C2;
+}
+
+li {
+    margin: 0 0 0 0;
+    padding: 0 0 0 1em;
+}
+
+ul {
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}

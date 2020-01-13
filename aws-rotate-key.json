@@ -1,0 +1,1 @@
+{"ppa_name":"aws-rotate-key","ppa_owner":"stefansundin","name":"aws-rotate-key","versions":["1.0.7-1"],"distros":[{"name":"xenial","count":1,"ddts":[{"value":1,"time":[2020,1,9]}]},{"name":"bionic","count":1,"ddts":[{"value":1,"time":[2020,1,9]}]},{"name":"eoan","count":1,"ddts":[{"value":1,"time":[2020,1,9]}]}],"ddts":[{"value":3,"time":[2020,1,9]}]}
