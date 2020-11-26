@@ -52,7 +52,14 @@ You can download binaries from [the releases section](https://github.com/stefans
 You can use Homebrew to install on macOS:
 
 ```
-brew install stefansundin/tap/aws-rotate-key
+brew install aws-rotate-key
+```
+
+**Update November 2020:** The program is now available in the official Homebrew repository. Earlier, this was facilitated with Homebrew taps. If you added any of the taps previously, you can remove them by running:
+
+```
+brew untap fullscreen/tap
+brew untap stefansundin/tap
 ```
 
 You can install [using a PPA](https://launchpad.net/~stefansundin/+archive/ubuntu/aws-rotate-key) on Ubuntu Linux:
