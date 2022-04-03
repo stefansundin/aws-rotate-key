@@ -1,2 +1,2 @@
 #!/bin/bash -ex
-multipass exec ppastats -- ppastats stefansundin aws-rotate-key -o /home/ubuntu/aws-rotate-key
+docker run -v $PWD:/mnt stefansundin/ppastats ppastats stefansundin aws-rotate-key -o /mnt
