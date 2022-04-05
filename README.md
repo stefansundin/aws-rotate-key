@@ -3,7 +3,7 @@
 As a security best practice, AWS recommends that users periodically
 [regenerate their API access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_RotateAccessKey).
 This tool simplifies the rotation of access keys defined in your
-[credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-multiple-profiles).
+[credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html).
 
 When run, the program will list the current access keys associated with your
 IAM user, and print the steps it has to perform to rotate them.
@@ -74,7 +74,7 @@ go install github.com/stefansundin/aws-rotate-key@latest
 
 Make sure your users have permissions to update their own access keys.
 The following AWS documentation page explains the required permissions:
-https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_delegate-permissions_examples.html#creds-policies-credentials.
+https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_delegate-permissions_examples.html.
 
 The following IAM policy is enough for aws-rotate-key:
 
@@ -99,7 +99,7 @@ The following IAM policy is enough for aws-rotate-key:
 }
 ```
 
-Replace `AWS_ACCOUNT_ID` with your AWS account id.
+⚠️ Replace `AWS_ACCOUNT_ID` with your AWS account id.
 
 ### Require MFA
 
