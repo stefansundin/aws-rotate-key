@@ -5,10 +5,10 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/setup-go@master
+    - uses: actions/setup-go@v3
       with:
         go-version: 1.13
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v3
     - name: go build
       run: |
         GOOS=linux GOARCH=amd64       go build -o release/linux_amd64/aws-rotate-key
@@ -16,23 +16,23 @@ jobs:
         GOOS=linux GOARCH=arm64       go build -o release/linux_arm64/aws-rotate-key
         GOOS=darwin GOARCH=amd64      go build -o release/darwin_amd64/aws-rotate-key
         GOOS=windows GOARCH=amd64     go build -o release/windows_amd64/aws-rotate-key.exe
-    - uses: actions/upload-artifact@master
+    - uses: actions/upload-artifact@v3
       with:
         name: aws-rotate-key-linux_amd64-${{ github.sha }}
         path: release/linux_amd64/aws-rotate-key
-    - uses: actions/upload-artifact@master
+    - uses: actions/upload-artifact@v3
       with:
         name: aws-rotate-key-linux_arm-${{ github.sha }}
         path: release/linux_arm/aws-rotate-key
-    - uses: actions/upload-artifact@master
+    - uses: actions/upload-artifact@v3
       with:
         name: aws-rotate-key-linux_arm64-${{ github.sha }}
         path: release/linux_arm64/aws-rotate-key
-    - uses: actions/upload-artifact@master
+    - uses: actions/upload-artifact@v3
       with:
         name: aws-rotate-key-darwin_amd64-${{ github.sha }}
         path: release/darwin_amd64/aws-rotate-key
-    - uses: actions/upload-artifact@master
+    - uses: actions/upload-artifact@v3
       with:
         name: aws-rotate-key-windows_amd64-${{ github.sha }}
         path: release/windows_amd64/aws-rotate-key.exe
