@@ -15,7 +15,10 @@ jobs:
         GOOS=linux GOARCH=arm GOARM=6 go build -o release/linux_arm/aws-rotate-key
         GOOS=linux GOARCH=arm64       go build -o release/linux_arm64/aws-rotate-key
         GOOS=darwin GOARCH=amd64      go build -o release/darwin_amd64/aws-rotate-key
+        GOOS=darwin GOARCH=arm64      go build -o release/darwin_arm64/aws-rotate-key
         GOOS=windows GOARCH=amd64     go build -o release/windows_amd64/aws-rotate-key.exe
+        GOOS=windows GOARCH=arm       go build -o release/windows_arm/aws-rotate-key.exe
+        GOOS=windows GOARCH=arm64     go build -o release/windows_arm64/aws-rotate-key.exe
     - uses: actions/upload-artifact@v3
       with:
         name: aws-rotate-key-linux_amd64-${{ github.sha }}
@@ -34,5 +37,17 @@ jobs:
         path: release/darwin_amd64/aws-rotate-key
     - uses: actions/upload-artifact@v3
       with:
+        name: aws-rotate-key-darwin_arm64-${{ github.sha }}
+        path: release/darwin_arm64/aws-rotate-key
+    - uses: actions/upload-artifact@v3
+      with:
         name: aws-rotate-key-windows_amd64-${{ github.sha }}
         path: release/windows_amd64/aws-rotate-key.exe
+    - uses: actions/upload-artifact@v3
+      with:
+        name: aws-rotate-key-windows_arm-${{ github.sha }}
+        path: release/windows_arm/aws-rotate-key.exe
+    - uses: actions/upload-artifact@v3
+      with:
+        name: aws-rotate-key-windows_arm64-${{ github.sha }}
+        path: release/windows_arm64/aws-rotate-key.exe
