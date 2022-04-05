@@ -30,7 +30,7 @@ func main() {
 	flag.BoolVar(&mfaFlag, "mfa", false, "Use MFA.")
 	flag.BoolVar(&deleteFlag, "d", false, "Delete old key without deactivation.")
 	flag.StringVar(&profileFlag, "profile", "default", "The profile to use.")
-	flag.StringVar(&authProfileFlag, "auth-profile", "", "Use a different profile to authenticate.")
+	flag.StringVar(&authProfileFlag, "auth-profile", "", "Use a different profile when calling AWS.")
 	flag.BoolVar(&versionFlag, "version", false, "Print version number")
 	flag.Parse()
 

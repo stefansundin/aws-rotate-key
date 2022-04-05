@@ -14,6 +14,8 @@ It will then wait for your confirmation before continuing.
 ```
 $ aws-rotate-key --help
 Usage of aws-rotate-key:
+  -auth-profile string
+    	Use a different profile when calling AWS.
   -d	Delete old key without deactivation.
   -mfa
     	Use MFA.
