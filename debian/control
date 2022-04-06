@@ -3,7 +3,7 @@ Maintainer: Stefan Sundin <stefan@stefansundin.com>
 Section: devel
 Priority: optional
 Build-Depends:
- debhelper-compat (= 12),
+ debhelper (>= 9.20120909),
  dh-golang,
 Build-Depends-Arch:
  golang-any,
