@@ -1,17 +1,19 @@
 VERSION = 1.0.8
 LDFLAGS = -ldflags '-s -w' -gcflags=-trimpath=${PWD} -asmflags=-trimpath=${PWD}
-GOARCH = amd64
 
 linux: export GOOS=linux
+linux: export GOARCH=amd64
 linux_arm: export GOOS=linux
 linux_arm: export GOARCH=arm
 linux_arm: export GOARM=6
 linux_arm64: export GOOS=linux
 linux_arm64: export GOARCH=arm64
 darwin: export GOOS=darwin
+darwin: export GOARCH=amd64
 darwin_arm64: export GOOS=darwin
 darwin_arm64: export GOARCH=arm64
 windows: export GOOS=windows
+windows: export GOARCH=amd64
 windows_arm: export GOOS=windows
 windows_arm: export GOARCH=arm
 windows_arm64: export GOOS=windows
