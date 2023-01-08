@@ -33,11 +33,11 @@ $ aws-rotate-key --profile work
 Using access key AKIAJMIGD6UPCXCFWVOA from profile "work".
 Your user ARN is: arn:aws:iam::123456789012:user/your_username
 
-You have 2 access keys associated with your user:
+Your user has 2 access keys:
 - AKIAI3KI7UC6BPI4O57A (Inactive, created 2018-11-22 21:47:46 +0000 UTC, last used 2018-11-30 20:35:41 +0000 UTC for service s3 in us-west-2)
 - AKIAJMIGD6UPCXCFWVOA (Active, created 2018-11-30 21:55:57 +0000 UTC, last used 2018-12-20 12:14:10 +0000 UTC for service s3 in us-west-2)
 
-You have two access keys, which is the max number of access keys.
+You have two access keys, which is the maximum number of access keys allowed.
 Do you want to delete AKIAI3KI7UC6BPI4O57A and create a new key? [yN] y
 Deleted access key AKIAI3KI7UC6BPI4O57A.
 Created access key AKIAIX46CKYT7E5I3KVQ.

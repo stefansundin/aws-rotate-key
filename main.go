@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/user"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -95,8 +96,8 @@ func main() {
 
 	// mfa
 	if mfaFlag {
-		// We have to pick the last element in case the user has a path associated with it (versus naively using [1]).
-		// It's probably very rare that people use paths but we should support it.
+		// We have to pick the last element in case the user has a path prefix (versus naively using [1])
+		// It's probably rare that people use paths but we should support it
 		userArnSplit := strings.Split(*respGetCallerIdentity.Arn, "/")
 		username := userArnSplit[len(userArnSplit)-1]
 
@@ -106,15 +107,63 @@ func main() {
 		})
 		check(err)
 		if len(respMFADevices.MFADevices) == 0 {
-			fmt.Println("You do not have an MFA device associated with your user. Aborting.")
+			fmt.Println("You do not have any MFA devices assigned to your user.")
 			os.Exit(1)
 		}
-		fmt.Printf("Your MFA ARN is:  %s\n\n", *respMFADevices.MFADevices[0].SerialNumber)
+		fmt.Println(respMFADevices)
+
+		var mfaSerialNumber *string
+		supportedSerialNumbers := make([]*string, 0, len(respMFADevices.MFADevices))
+		for _, device := range respMFADevices.MFADevices {
+			if !isU2F(*device.SerialNumber) {
+				supportedSerialNumbers = append(supportedSerialNumbers, device.SerialNumber)
+			}
+		}
+
+		if len(supportedSerialNumbers) == 0 {
+			fmt.Println()
+			fmt.Println("You have an U2F MFA device assigned to your user. These are not supported.")
+			fmt.Println("Please add another MFA to your user.")
+			os.Exit(1)
+		} else if len(supportedSerialNumbers) == 1 {
+			mfaSerialNumber = supportedSerialNumbers[0]
+			fmt.Printf("Your MFA serial number is: %s\n\n", *mfaSerialNumber)
+		} else {
+			fmt.Println()
+			fmt.Println("You have multiple MFA devices assigned to your user.")
+			if len(supportedSerialNumbers) != len(respMFADevices.MFADevices) {
+				fmt.Println("Note: You have U2F MFA devices assigned to your user. These are not supported and are not included here.")
+			}
+			fmt.Println()
+			for i, serialNumber := range supportedSerialNumbers {
+				fmt.Printf("%d: %s\n", i+1, *serialNumber)
+			}
+			fmt.Println()
+			if yesFlag {
+				mfaSerialNumber = supportedSerialNumbers[0]
+				fmt.Println("Because you used -y, the first MFA device was automatically chosen.")
+			} else {
+				var input string
+				fmt.Print("Which MFA device do you want to use? Enter a number from above or the full serial number: ")
+				_, err = fmt.Scanln(&input)
+				check(err)
+				if isNumeric(input) {
+					i, err := strconv.Atoi(input)
+					check(err)
+					if i < 1 || i > len(supportedSerialNumbers) {
+						fmt.Println("Invalid selection!")
+						os.Exit(1)
+					}
+					mfaSerialNumber = supportedSerialNumbers[i-1]
+				} else {
+					mfaSerialNumber = &input
+				}
+			}
+		}
 
 		// I have no idea how much work it would be to support U2F
-		serialNumberSplit := strings.Split(*respMFADevices.MFADevices[0].SerialNumber, ":")
-		if strings.HasPrefix(serialNumberSplit[5], "u2f/") {
-			fmt.Println("Sorry, U2F MFAs are not supported. Aborting.")
+		if isU2F(*mfaSerialNumber) {
+			fmt.Println("Sorry, U2F MFA devices are not supported. Please use another MFA.")
 			os.Exit(1)
 		}
 
@@ -127,7 +176,7 @@ func main() {
 		// Get the new credentials
 		respSessionToken, err := stsClient.GetSessionToken(&sts.GetSessionTokenInput{
 			DurationSeconds: aws.Int64(900), // valid for 15 minutes (the minimum)
-			SerialNumber:    respMFADevices.MFADevices[0].SerialNumber,
+			SerialNumber:    mfaSerialNumber,
 			TokenCode:       aws.String(code),
 		})
 		check(err)
@@ -150,7 +199,7 @@ func main() {
 	check(err)
 
 	// Print key information
-	fmt.Printf("You have %d access key%v associated with your user:\n", len(respListAccessKeys.AccessKeyMetadata), pluralize(len(respListAccessKeys.AccessKeyMetadata)))
+	fmt.Printf("Your user has %d access key%s:\n", len(respListAccessKeys.AccessKeyMetadata), pluralize(len(respListAccessKeys.AccessKeyMetadata)))
 	for _, key := range respListAccessKeys.AccessKeyMetadata {
 		respAccessKeyLastUsed, err2 := iamClient.GetAccessKeyLastUsed(&iam.GetAccessKeyLastUsedInput{
 			AccessKeyId: key.AccessKeyId,
@@ -172,7 +221,7 @@ func main() {
 		}
 
 		if !yesFlag {
-			fmt.Println("You have two access keys, which is the max number of access keys.")
+			fmt.Println("You have two access keys, which is the maximum number of access keys allowed.")
 			fmt.Printf("Do you want to delete %s and create a new key? [yN] ", *respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId)
 			if *respListAccessKeys.AccessKeyMetadata[keyIndex].Status == "Active" {
 				fmt.Printf("\nWARNING: This key is currently Active! ")
@@ -208,23 +257,25 @@ func main() {
 	// If you do not specify a user name, IAM determines the user name implicitly based on the AWS access key ID signing the request.
 	respCreateAccessKey, err := iamClient.CreateAccessKey(&iam.CreateAccessKeyInput{})
 	check(err)
-	fmt.Printf("Created access key %s.\n", *respCreateAccessKey.AccessKey.AccessKeyId)
+	newAccessKeyId := *respCreateAccessKey.AccessKey.AccessKeyId
+	newSecretAccessKey := *respCreateAccessKey.AccessKey.SecretAccessKey
+	fmt.Printf("Created access key %s.\n", newAccessKeyId)
 
 	// Replace key pair in credentials file
-	// This search & replace does not limit itself to the specified profile, which may be useful if the user is using the same key in multiple profiles
-	credentialsText = re_aws_access_key_id.ReplaceAllString(credentialsText, `aws_access_key_id=`+*respCreateAccessKey.AccessKey.AccessKeyId)
-	credentialsText = re_aws_secret_access_key.ReplaceAllString(credentialsText, `aws_secret_access_key=`+*respCreateAccessKey.AccessKey.SecretAccessKey)
+	// This search & replace does not limit itself to the specified profile, which is useful if the user is using the same key in multiple profiles
+	credentialsText = re_aws_access_key_id.ReplaceAllString(credentialsText, `aws_access_key_id=`+newAccessKeyId)
+	credentialsText = re_aws_secret_access_key.ReplaceAllString(credentialsText, `aws_secret_access_key=`+newSecretAccessKey)
 
 	// Verify that the regexp actually replaced something
-	if !strings.Contains(credentialsText, *respCreateAccessKey.AccessKey.AccessKeyId) || !strings.Contains(credentialsText, *respCreateAccessKey.AccessKey.SecretAccessKey) {
-		fmt.Println("Failed to replace old access key. Aborting.")
+	if !strings.Contains(credentialsText, newAccessKeyId) || !strings.Contains(credentialsText, newSecretAccessKey) {
+		fmt.Println("Error: Failed to replace the old access key.")
 		fmt.Printf("Please verify that the file %s is formatted correctly.\n", credentialsPath)
 		// Delete the key we created
 		_, err2 := iamClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
-			AccessKeyId: respCreateAccessKey.AccessKey.AccessKeyId,
+			AccessKeyId: &newAccessKeyId,
 		})
 		check(err2)
-		fmt.Printf("Deleted access key %s.\n", *respCreateAccessKey.AccessKey.AccessKeyId)
+		fmt.Printf("Deleted access key %s.\n", newAccessKeyId)
 		os.Exit(1)
 	}
 
@@ -250,18 +301,4 @@ func main() {
 		fmt.Println("Please make sure this key is not used elsewhere.")
 	}
 	fmt.Println("Please note that it may take a minute for your new access key to propagate in the AWS control plane.")
-}
-
-func pluralize(n int) string {
-	if n == 1 {
-		return ""
-	}
-	return "s"
-}
-
-func check(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
-	}
 }
