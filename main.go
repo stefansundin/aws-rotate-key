@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"regexp"
@@ -60,7 +59,7 @@ func main() {
 	}
 
 	// Read credentials file
-	bytes, err := ioutil.ReadFile(credentialsPath)
+	bytes, err := os.ReadFile(credentialsPath)
 	check(err)
 	credentialsText := string(bytes)
 	// Check if we can find the credentials in the file
@@ -172,7 +171,7 @@ func main() {
 			keyIndex = 1
 		}
 
-		if yesFlag == false {
+		if !yesFlag {
 			fmt.Println("You have two access keys, which is the max number of access keys.")
 			fmt.Printf("Do you want to delete %s and create a new key? [yN] ", *respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId)
 			if *respListAccessKeys.AccessKeyMetadata[keyIndex].Status == "Active" {
@@ -191,7 +190,7 @@ func main() {
 		})
 		check(err2)
 		fmt.Printf("Deleted access key %s.\n", *respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId)
-	} else if yesFlag == false {
+	} else if !yesFlag {
 		cleanupAction := "deactivate"
 		if deleteFlag {
 			cleanupAction = "delete"
@@ -230,7 +229,7 @@ func main() {
 	}
 
 	// Write new file
-	err = ioutil.WriteFile(credentialsPath, []byte(credentialsText), 0600)
+	err = os.WriteFile(credentialsPath, []byte(credentialsText), 0600)
 	check(err)
 	fmt.Printf("Wrote new key pair to %s\n", credentialsPath)
 
