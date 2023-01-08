@@ -24,6 +24,7 @@ func main() {
 	var mfaFlag bool
 	var profileFlag string
 	var authProfileFlag string
+	var mfaSerialNumber string
 	var versionFlag bool
 	var deleteFlag bool
 	flag.BoolVar(&yesFlag, "y", false, `Automatic "yes" to prompts.`)
@@ -31,6 +32,7 @@ func main() {
 	flag.BoolVar(&deleteFlag, "d", false, "Delete old key without deactivation.")
 	flag.StringVar(&profileFlag, "profile", "default", "The profile to use.")
 	flag.StringVar(&authProfileFlag, "auth-profile", "", "Use a different profile when calling AWS.")
+	flag.StringVar(&mfaSerialNumber, "mfa-serial-number", "", "Specify the MFA device to use. (optional)")
 	flag.BoolVar(&versionFlag, "version", false, "Print version number")
 	flag.Parse()
 
@@ -95,74 +97,75 @@ func main() {
 	fmt.Printf("Your user ARN is: %s\n", *respGetCallerIdentity.Arn)
 
 	// mfa
-	if mfaFlag {
-		// We have to pick the last element in case the user has a path prefix (versus naively using [1])
-		// It's probably rare that people use paths but we should support it
-		userArnSplit := strings.Split(*respGetCallerIdentity.Arn, "/")
-		username := userArnSplit[len(userArnSplit)-1]
+	if mfaFlag || mfaSerialNumber != "" {
+		if mfaSerialNumber == "" {
+			// We have to pick the last element in case the user has a path prefix (versus naively using [1])
+			// It's probably rare that people use paths but we should support it
+			userArnSplit := strings.Split(*respGetCallerIdentity.Arn, "/")
+			username := userArnSplit[len(userArnSplit)-1]
 
-		iamClient := iam.New(sess)
-		respMFADevices, err := iamClient.ListMFADevices(&iam.ListMFADevicesInput{
-			UserName: aws.String(username),
-		})
-		check(err)
-		if len(respMFADevices.MFADevices) == 0 {
-			fmt.Println("You do not have any MFA devices assigned to your user.")
-			os.Exit(1)
-		}
-		fmt.Println(respMFADevices)
+			iamClient := iam.New(sess)
+			respMFADevices, err := iamClient.ListMFADevices(&iam.ListMFADevicesInput{
+				UserName: aws.String(username),
+			})
+			check(err)
+			if len(respMFADevices.MFADevices) == 0 {
+				fmt.Println("You do not have any MFA devices assigned to your user.")
+				os.Exit(1)
+			}
+			fmt.Println(respMFADevices)
 
-		var mfaSerialNumber *string
-		supportedSerialNumbers := make([]*string, 0, len(respMFADevices.MFADevices))
-		for _, device := range respMFADevices.MFADevices {
-			if !isU2F(*device.SerialNumber) {
-				supportedSerialNumbers = append(supportedSerialNumbers, device.SerialNumber)
+			supportedSerialNumbers := make([]*string, 0, len(respMFADevices.MFADevices))
+			for _, device := range respMFADevices.MFADevices {
+				if !isU2F(*device.SerialNumber) {
+					supportedSerialNumbers = append(supportedSerialNumbers, device.SerialNumber)
+				}
 			}
-		}
 
-		if len(supportedSerialNumbers) == 0 {
-			fmt.Println()
-			fmt.Println("You have an U2F MFA device assigned to your user. These are not supported.")
-			fmt.Println("Please add another MFA to your user.")
-			os.Exit(1)
-		} else if len(supportedSerialNumbers) == 1 {
-			mfaSerialNumber = supportedSerialNumbers[0]
-			fmt.Printf("Your MFA serial number is: %s\n\n", *mfaSerialNumber)
-		} else {
-			fmt.Println()
-			fmt.Println("You have multiple MFA devices assigned to your user.")
-			if len(supportedSerialNumbers) != len(respMFADevices.MFADevices) {
-				fmt.Println("Note: You have U2F MFA devices assigned to your user. These are not supported and are not included here.")
-			}
-			fmt.Println()
-			for i, serialNumber := range supportedSerialNumbers {
-				fmt.Printf("%d: %s\n", i+1, *serialNumber)
-			}
-			fmt.Println()
-			if yesFlag {
-				mfaSerialNumber = supportedSerialNumbers[0]
-				fmt.Println("Because you used -y, the first MFA device was automatically chosen.")
+			if len(supportedSerialNumbers) == 0 {
+				fmt.Println()
+				fmt.Println("You have an U2F MFA device assigned to your user. These are not supported.")
+				fmt.Println("Please add another MFA to your user.")
+				os.Exit(1)
+			} else if len(supportedSerialNumbers) == 1 {
+				mfaSerialNumber = *supportedSerialNumbers[0]
+				fmt.Printf("Your MFA serial number is: %s\n\n", mfaSerialNumber)
 			} else {
-				var input string
-				fmt.Print("Which MFA device do you want to use? Enter a number from above or the full serial number: ")
-				_, err = fmt.Scanln(&input)
-				check(err)
-				if isNumeric(input) {
-					i, err := strconv.Atoi(input)
-					check(err)
-					if i < 1 || i > len(supportedSerialNumbers) {
-						fmt.Println("Invalid selection!")
-						os.Exit(1)
-					}
-					mfaSerialNumber = supportedSerialNumbers[i-1]
+				fmt.Println()
+				fmt.Println("You have multiple MFA devices assigned to your user.")
+				if len(supportedSerialNumbers) != len(respMFADevices.MFADevices) {
+					fmt.Println("Note: You have U2F MFA devices assigned to your user. These are not supported and are not included here.")
+				}
+				fmt.Println()
+				for i, serialNumber := range supportedSerialNumbers {
+					fmt.Printf("%d: %s\n", i+1, *serialNumber)
+				}
+				fmt.Println()
+				if yesFlag {
+					mfaSerialNumber = *supportedSerialNumbers[0]
+					fmt.Println("Because you used -y, the first MFA device was automatically chosen. You can use -mfa-serial-number to pick a different device.")
 				} else {
-					mfaSerialNumber = &input
+					var input string
+					fmt.Print("Which MFA device do you want to use? Enter a number from above or the full serial number: ")
+					_, err = fmt.Scanln(&input)
+					check(err)
+					if isNumeric(input) {
+						i, err := strconv.Atoi(input)
+						check(err)
+						if i < 1 || i > len(supportedSerialNumbers) {
+							fmt.Println("Invalid selection!")
+							os.Exit(1)
+						}
+						mfaSerialNumber = *supportedSerialNumbers[i-1]
+					} else {
+						mfaSerialNumber = input
+					}
 				}
 			}
 		}
 
 		// I have no idea how much work it would be to support U2F
-		if isU2F(*mfaSerialNumber) {
+		if isU2F(mfaSerialNumber) {
 			fmt.Println("Sorry, U2F MFA devices are not supported. Please use another MFA.")
 			os.Exit(1)
 		}
@@ -176,7 +179,7 @@ func main() {
 		// Get the new credentials
 		respSessionToken, err := stsClient.GetSessionToken(&sts.GetSessionTokenInput{
 			DurationSeconds: aws.Int64(900), // valid for 15 minutes (the minimum)
-			SerialNumber:    mfaSerialNumber,
+			SerialNumber:    aws.String(mfaSerialNumber),
 			TokenCode:       aws.String(code),
 		})
 		check(err)
@@ -272,7 +275,7 @@ func main() {
 		fmt.Printf("Please verify that the file %s is formatted correctly.\n", credentialsPath)
 		// Delete the key we created
 		_, err2 := iamClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
-			AccessKeyId: &newAccessKeyId,
+			AccessKeyId: aws.String(newAccessKeyId),
 		})
 		check(err2)
 		fmt.Printf("Deleted access key %s.\n", newAccessKeyId)
@@ -287,13 +290,13 @@ func main() {
 	// Delete the old key if flag is set, otherwise deactivate it
 	if deleteFlag {
 		_, err := iamClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
-			AccessKeyId: &creds.AccessKeyID,
+			AccessKeyId: aws.String(creds.AccessKeyID),
 		})
 		check(err)
 		fmt.Printf("Deleted old access key %s.\n", creds.AccessKeyID)
 	} else {
 		_, err = iamClient.UpdateAccessKey(&iam.UpdateAccessKeyInput{
-			AccessKeyId: &creds.AccessKeyID,
+			AccessKeyId: aws.String(creds.AccessKeyID),
 			Status:      aws.String("Inactive"),
 		})
 		check(err)

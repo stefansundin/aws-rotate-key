@@ -19,6 +19,8 @@ Usage of aws-rotate-key:
   -d	Delete old key without deactivation.
   -mfa
     	Use MFA.
+  -mfa-serial-number string
+    	Specify the MFA device to use. (optional)
   -profile string
     	The profile to use. (default "default")
   -version
