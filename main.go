@@ -99,15 +99,10 @@ func main() {
 	// mfa
 	if mfaFlag || mfaSerialNumber != "" {
 		if mfaSerialNumber == "" {
-			// We have to pick the last element in case the user has a path prefix (versus naively using [1])
-			// It's probably rare that people use paths but we should support it
-			userArnSplit := strings.Split(*respGetCallerIdentity.Arn, "/")
-			username := userArnSplit[len(userArnSplit)-1]
-
+			// iam list-mfa-devices
+			// If the UserName field is not specified, the UserName is determined implicitly based on the AWS access key ID used to sign the request.
 			iamClient := iam.New(sess)
-			respMFADevices, err := iamClient.ListMFADevices(&iam.ListMFADevicesInput{
-				UserName: aws.String(username),
-			})
+			respMFADevices, err := iamClient.ListMFADevices(&iam.ListMFADevicesInput{})
 			check(err)
 			if len(respMFADevices.MFADevices) == 0 {
 				fmt.Println("You do not have any MFA devices assigned to your user.")
