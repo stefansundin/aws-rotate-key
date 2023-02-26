@@ -113,7 +113,6 @@ func main() {
 				fmt.Println("You do not have any MFA devices assigned to your user.")
 				os.Exit(1)
 			}
-			fmt.Println(respMFADevices)
 
 			supportedSerialNumbers := make([]*string, 0, len(respMFADevices.MFADevices))
 			for _, device := range respMFADevices.MFADevices {
