@@ -17,7 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-const version = "1.0.8"
+const version = "1.1.0"
 
 func main() {
 	var yesFlag bool
