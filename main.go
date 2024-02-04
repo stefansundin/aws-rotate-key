@@ -20,11 +20,27 @@ import (
 const version = "1.1.0"
 
 var defaultProfile = "default"
+var credentialsPath string
 
 func init() {
 	// Respect AWS_PROFILE if it is set
 	if v, ok := os.LookupEnv("AWS_PROFILE"); ok {
 		defaultProfile = v
+	}
+	// Locate the credentials file
+	credentialsPath = os.Getenv("AWS_SHARED_CREDENTIALS_FILE")
+	if credentialsPath == "" {
+		usr, err := user.Current()
+		if err != nil {
+			fmt.Println("Error: Could not locate your home directory. Please set the AWS_SHARED_CREDENTIALS_FILE environment variable.")
+			os.Exit(1)
+		}
+		credentialsPath = fmt.Sprintf("%s/.aws/credentials", usr.HomeDir)
+	}
+	if _, err := os.Stat(credentialsPath); os.IsNotExist(err) {
+		fmt.Printf("Error locating the credentials file, expected it at: %s\n", credentialsPath)
+		fmt.Println("Please set the AWS_SHARED_CREDENTIALS_FILE environment variable if it is located elsewhere.")
+		os.Exit(1)
 	}
 }
 
@@ -51,16 +67,6 @@ func main() {
 	}
 
 	// Get credentials
-	credentialsPath := os.Getenv("AWS_SHARED_CREDENTIALS_FILE")
-	if len(credentialsPath) == 0 {
-		usr, err := user.Current()
-		if err != nil {
-			fmt.Println("Error: Could not locate your home directory. Please set the AWS_SHARED_CREDENTIALS_FILE environment variable.")
-			os.Exit(1)
-		}
-		credentialsPath = fmt.Sprintf("%s/.aws/credentials", usr.HomeDir)
-	}
-
 	credentialsProvider := credentials.NewSharedCredentials(credentialsPath, profileFlag)
 	creds, err := credentialsProvider.Get()
 	check(err)
