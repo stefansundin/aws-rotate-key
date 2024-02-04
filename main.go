@@ -19,6 +19,15 @@ import (
 
 const version = "1.1.0"
 
+var defaultProfile = "default"
+
+func init() {
+	// Respect AWS_PROFILE if it is set
+	if v, ok := os.LookupEnv("AWS_PROFILE"); ok {
+		defaultProfile = v
+	}
+}
+
 func main() {
 	var yesFlag bool
 	var mfaFlag bool
@@ -30,7 +39,7 @@ func main() {
 	flag.BoolVar(&yesFlag, "y", false, `Automatic "yes" to prompts.`)
 	flag.BoolVar(&mfaFlag, "mfa", false, "Use MFA.")
 	flag.BoolVar(&deleteFlag, "d", false, "Delete old key without deactivation.")
-	flag.StringVar(&profileFlag, "profile", "default", "The profile to use.")
+	flag.StringVar(&profileFlag, "profile", defaultProfile, "The profile to use.")
 	flag.StringVar(&authProfileFlag, "auth-profile", "", "Use a different profile when calling AWS.")
 	flag.StringVar(&mfaSerialNumber, "mfa-serial-number", "", "Specify the MFA device to use. (optional)")
 	flag.BoolVar(&versionFlag, "version", false, "Print version number")
