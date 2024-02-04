@@ -1,4 +1,4 @@
-```
+```shell
 sudo apt install devscripts debhelper dh-golang golang golang-any golang-github-aws-aws-sdk-go-dev
 
 # in the repository root:

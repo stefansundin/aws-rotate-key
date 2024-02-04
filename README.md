@@ -55,20 +55,20 @@ You can download binaries from [the releases section](https://github.com/stefans
 
 You can use Homebrew to install on macOS:
 
-```
+```shell
 brew install aws-rotate-key
 ```
 
 You can install [using a PPA](https://launchpad.net/~stefansundin/+archive/ubuntu/aws-rotate-key) on Ubuntu Linux:
 
-```
+```shell
 sudo add-apt-repository ppa:stefansundin/aws-rotate-key
 sudo apt install aws-rotate-key
 ```
 
 If you have Go installed then you can download and build the program using:
 
-```
+```shell
 go install github.com/stefansundin/aws-rotate-key@latest
 ```
 
@@ -101,7 +101,8 @@ The following IAM policy is enough for aws-rotate-key:
 }
 ```
 
-⚠️ Replace `AWS_ACCOUNT_ID` with your AWS account id.
+> [!WARNING]
+> Replace `AWS_ACCOUNT_ID` with your AWS account id.
 
 ### Require MFA
 
@@ -151,7 +152,7 @@ the AWS management console.
 
 To download and hack on the source code, run:
 
-```
+```shell
 git clone https://github.com/stefansundin/aws-rotate-key.git
 cd aws-rotate-key
 go build
