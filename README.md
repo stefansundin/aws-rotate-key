@@ -16,7 +16,7 @@ $ aws-rotate-key --help
 Usage of aws-rotate-key:
   -auth-profile string
     	Use a different profile when calling AWS.
-  -d	Delete old key without deactivation.
+  -d	Delete the old key instead of deactivating it.
   -mfa
     	Use MFA.
   -mfa-serial-number string
@@ -41,10 +41,10 @@ Your user has 2 access keys:
 
 You have two access keys, which is the maximum number of access keys allowed.
 Do you want to delete AKIAI3KI7UC6BPI4O57A and create a new key? [yN] y
-Deleted access key AKIAI3KI7UC6BPI4O57A.
-Created access key AKIAIX46CKYT7E5I3KVQ.
+Deleted access key: AKIAI3KI7UC6BPI4O57A
+Created access key: AKIAIX46CKYT7E5I3KVQ
 Wrote new key pair to /Users/your_username/.aws/credentials
-Deactivated old access key AKIAJMIGD6UPCXCFWVOA.
+Deactivated old access key: AKIAJMIGD6UPCXCFWVOA
 Please make sure this key is not used elsewhere.
 Please note that it may take a minute for your new access key to propagate in the AWS control plane.
 ```

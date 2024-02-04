@@ -38,7 +38,7 @@ func main() {
 	var deleteFlag bool
 	flag.BoolVar(&yesFlag, "y", false, `Automatic "yes" to prompts.`)
 	flag.BoolVar(&mfaFlag, "mfa", false, "Use MFA.")
-	flag.BoolVar(&deleteFlag, "d", false, "Delete old key without deactivation.")
+	flag.BoolVar(&deleteFlag, "d", false, "Delete the old key instead of deactivating it.")
 	flag.StringVar(&profileFlag, "profile", defaultProfile, "The profile to use.")
 	flag.StringVar(&authProfileFlag, "auth-profile", "", "Use a different profile when calling AWS.")
 	flag.StringVar(&mfaSerialNumber, "mfa-serial-number", "", "Specify the MFA device to use. (optional)")
@@ -80,7 +80,7 @@ func main() {
 	re_aws_secret_access_key := regexp.MustCompile(fmt.Sprintf(`(?m)^aws_secret_access_key *= *%s`, regexp.QuoteMeta(creds.SecretAccessKey)))
 	if !re_aws_access_key_id.MatchString(credentialsText) || !re_aws_secret_access_key.MatchString(credentialsText) {
 		fmt.Println()
-		fmt.Printf("Unable to find your credentials in %s.\n", credentialsPath)
+		fmt.Printf("Unable to find your credentials in %s\n", credentialsPath)
 		fmt.Println("Please make sure your file is formatted like the following:")
 		fmt.Println()
 		fmt.Printf("aws_access_key_id=%s\n", creds.AccessKeyID)
@@ -137,7 +137,7 @@ func main() {
 				fmt.Println()
 				fmt.Println("You have multiple MFA devices assigned to your user.")
 				if len(supportedSerialNumbers) != len(respMFADevices.MFADevices) {
-					fmt.Println("Note: You have U2F MFA devices assigned to your user. These are not supported and are not included here.")
+					fmt.Println("Note: You have U2F MFA devices assigned to your user. These are not supported and are not in this list.")
 				}
 				fmt.Println()
 				for i, serialNumber := range supportedSerialNumbers {
@@ -149,7 +149,8 @@ func main() {
 					fmt.Println("Because you used -y, the first MFA device was automatically chosen. You can use -mfa-serial-number to pick a different device.")
 				} else {
 					var input string
-					fmt.Print("Which MFA device do you want to use? Enter a number from above or the full serial number: ")
+					fmt.Println("Which MFA device do you want to use?")
+					fmt.Print("Enter a number from the list above or the full serial number: ")
 					_, err = fmt.Scanln(&input)
 					check(err)
 					if isNumeric(input) {
@@ -244,7 +245,7 @@ func main() {
 			AccessKeyId: respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId,
 		})
 		check(err2)
-		fmt.Printf("Deleted access key %s.\n", *respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId)
+		fmt.Printf("Deleted access key: %s\n", *respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId)
 	} else if !yesFlag {
 		cleanupAction := "deactivate"
 		if deleteFlag {
@@ -265,7 +266,7 @@ func main() {
 	check(err)
 	newAccessKeyId := *respCreateAccessKey.AccessKey.AccessKeyId
 	newSecretAccessKey := *respCreateAccessKey.AccessKey.SecretAccessKey
-	fmt.Printf("Created access key %s.\n", newAccessKeyId)
+	fmt.Printf("Created access key: %s\n", newAccessKeyId)
 
 	// Replace key pair in credentials file
 	// This search & replace does not limit itself to the specified profile, which is useful if the user is using the same key in multiple profiles
@@ -281,7 +282,7 @@ func main() {
 			AccessKeyId: aws.String(newAccessKeyId),
 		})
 		check(err2)
-		fmt.Printf("Deleted access key %s.\n", newAccessKeyId)
+		fmt.Printf("Deleted access key: %s\n", newAccessKeyId)
 		os.Exit(1)
 	}
 
@@ -296,14 +297,14 @@ func main() {
 			AccessKeyId: aws.String(creds.AccessKeyID),
 		})
 		check(err)
-		fmt.Printf("Deleted old access key %s.\n", creds.AccessKeyID)
+		fmt.Printf("Deleted old access key: %s\n", creds.AccessKeyID)
 	} else {
 		_, err = iamClient.UpdateAccessKey(&iam.UpdateAccessKeyInput{
 			AccessKeyId: aws.String(creds.AccessKeyID),
 			Status:      aws.String("Inactive"),
 		})
 		check(err)
-		fmt.Printf("Deactivated old access key %s.\n", creds.AccessKeyID)
+		fmt.Printf("Deactivated old access key: %s\n", creds.AccessKeyID)
 		fmt.Println("Please make sure this key is not used elsewhere.")
 	}
 	fmt.Println("Please note that it may take a minute for your new access key to propagate in the AWS control plane.")
