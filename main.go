@@ -124,10 +124,10 @@ func main() {
 				os.Exit(1)
 			}
 
-			supportedSerialNumbers := make([]*string, 0, len(respMFADevices.MFADevices))
+			supportedSerialNumbers := make([]string, 0, len(respMFADevices.MFADevices))
 			for _, device := range respMFADevices.MFADevices {
 				if !isU2F(*device.SerialNumber) {
-					supportedSerialNumbers = append(supportedSerialNumbers, device.SerialNumber)
+					supportedSerialNumbers = append(supportedSerialNumbers, aws.StringValue(device.SerialNumber))
 				}
 			}
 
@@ -137,7 +137,7 @@ func main() {
 				fmt.Println("Please add another MFA to your user.")
 				os.Exit(1)
 			} else if len(supportedSerialNumbers) == 1 {
-				mfaSerialNumber = *supportedSerialNumbers[0]
+				mfaSerialNumber = supportedSerialNumbers[0]
 				fmt.Printf("Your MFA serial number is: %s\n\n", mfaSerialNumber)
 			} else {
 				fmt.Println()
@@ -147,11 +147,11 @@ func main() {
 				}
 				fmt.Println()
 				for i, serialNumber := range supportedSerialNumbers {
-					fmt.Printf("%d: %s\n", i+1, *serialNumber)
+					fmt.Printf("%d: %s\n", i+1, serialNumber)
 				}
 				fmt.Println()
 				if yesFlag {
-					mfaSerialNumber = *supportedSerialNumbers[0]
+					mfaSerialNumber = supportedSerialNumbers[0]
 					fmt.Println("Because you used -y, the first MFA device was automatically chosen. You can use -mfa-serial-number to pick a different device.")
 				} else {
 					var input string
@@ -166,7 +166,7 @@ func main() {
 							fmt.Println("Invalid selection!")
 							os.Exit(1)
 						}
-						mfaSerialNumber = *supportedSerialNumbers[i-1]
+						mfaSerialNumber = supportedSerialNumbers[i-1]
 					} else {
 						mfaSerialNumber = input
 					}
