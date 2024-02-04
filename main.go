@@ -267,6 +267,7 @@ func main() {
 			yn, err2 := reader.ReadString('\n')
 			check(err2)
 			if yn[0] != 'y' && yn[0] != 'Y' {
+				fmt.Println("Aborted with no changes performed.")
 				os.Exit(1)
 			}
 		}
@@ -291,6 +292,7 @@ func main() {
 		yn, err2 := reader.ReadString('\n')
 		check(err2)
 		if yn[0] != 'y' && yn[0] != 'Y' {
+			fmt.Println("Aborted with no changes performed.")
 			os.Exit(1)
 		}
 	}
