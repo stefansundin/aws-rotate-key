@@ -7,7 +7,7 @@ Build-Depends:
  dh-golang,
 Build-Depends-Arch:
  golang-any,
- golang-github-aws-aws-sdk-go-dev,
+ golang-github-aws-aws-sdk-go-v2-dev,
 Standards-Version: 4.4.0
 Rules-Requires-Root: no
 Homepage: https://github.com/stefansundin/aws-rotate-key
