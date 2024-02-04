@@ -109,7 +109,7 @@ func main() {
 		fmt.Println()
 		check(err)
 	}
-	fmt.Printf("Your user ARN is: %s\n", *respGetCallerIdentity.Arn)
+	fmt.Printf("Your user ARN is: %s\n", aws.StringValue(respGetCallerIdentity.Arn))
 
 	// mfa
 	if mfaFlag || mfaSerialNumber != "" {
@@ -126,7 +126,7 @@ func main() {
 
 			supportedSerialNumbers := make([]string, 0, len(respMFADevices.MFADevices))
 			for _, device := range respMFADevices.MFADevices {
-				if !isU2F(*device.SerialNumber) {
+				if !isU2F(aws.StringValue(device.SerialNumber)) {
 					supportedSerialNumbers = append(supportedSerialNumbers, aws.StringValue(device.SerialNumber))
 				}
 			}
@@ -196,7 +196,11 @@ func main() {
 
 		// Create a new session that use the new credentials
 		c := respSessionToken.Credentials
-		mfaCreds := credentials.NewStaticCredentials(*c.AccessKeyId, *c.SecretAccessKey, *c.SessionToken)
+		mfaCreds := credentials.NewStaticCredentials(
+			aws.StringValue(c.AccessKeyId),
+			aws.StringValue(c.SecretAccessKey),
+			aws.StringValue(c.SessionToken),
+		)
 		sess = session.Must(session.NewSessionWithOptions(session.Options{
 			SharedConfigState: session.SharedConfigEnable,
 			Profile:           profileFlag,
@@ -212,31 +216,51 @@ func main() {
 	check(err)
 
 	// Print key information
-	fmt.Printf("Your user has %d access key%s:\n", len(respListAccessKeys.AccessKeyMetadata), pluralize(len(respListAccessKeys.AccessKeyMetadata)))
+	fmt.Printf("Your user has %d access key%s:\n",
+		len(respListAccessKeys.AccessKeyMetadata),
+		pluralize(len(respListAccessKeys.AccessKeyMetadata)),
+	)
 	for _, key := range respListAccessKeys.AccessKeyMetadata {
 		respAccessKeyLastUsed, err2 := iamClient.GetAccessKeyLastUsed(&iam.GetAccessKeyLastUsedInput{
 			AccessKeyId: key.AccessKeyId,
 		})
 		if err2 != nil {
-			fmt.Printf("- %s (%s, created %s)\n", *key.AccessKeyId, *key.Status, key.CreateDate)
+			fmt.Printf("- %s (%s, created %s)\n",
+				aws.StringValue(key.AccessKeyId),
+				aws.StringValue(key.Status),
+				key.CreateDate,
+			)
 		} else if respAccessKeyLastUsed.AccessKeyLastUsed.LastUsedDate == nil {
-			fmt.Printf("- %s (%s, created %s, never used)\n", *key.AccessKeyId, *key.Status, key.CreateDate)
+			fmt.Printf("- %s (%s, created %s, never used)\n",
+				aws.StringValue(key.AccessKeyId),
+				aws.StringValue(key.Status),
+				key.CreateDate,
+			)
 		} else {
-			fmt.Printf("- %s (%s, created %s, last used %s for service %s in %s)\n", *key.AccessKeyId, *key.Status, key.CreateDate, respAccessKeyLastUsed.AccessKeyLastUsed.LastUsedDate, *respAccessKeyLastUsed.AccessKeyLastUsed.ServiceName, *respAccessKeyLastUsed.AccessKeyLastUsed.Region)
+			fmt.Printf("- %s (%s, created %s, last used %s for service %s in %s)\n",
+				aws.StringValue(key.AccessKeyId),
+				aws.StringValue(key.Status),
+				key.CreateDate,
+				respAccessKeyLastUsed.AccessKeyLastUsed.LastUsedDate,
+				aws.StringValue(respAccessKeyLastUsed.AccessKeyLastUsed.ServiceName),
+				aws.StringValue(respAccessKeyLastUsed.AccessKeyLastUsed.Region),
+			)
 		}
 	}
 	fmt.Println()
 
 	if len(respListAccessKeys.AccessKeyMetadata) == 2 {
 		keyIndex := 0
-		if *respListAccessKeys.AccessKeyMetadata[0].AccessKeyId == creds.AccessKeyID {
+		if aws.StringValue(respListAccessKeys.AccessKeyMetadata[0].AccessKeyId) == creds.AccessKeyID {
 			keyIndex = 1
 		}
 
 		if !yesFlag {
 			fmt.Println("You have two access keys, which is the maximum number of access keys allowed.")
-			fmt.Printf("Do you want to delete %s and create a new key? [yN] ", *respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId)
-			if *respListAccessKeys.AccessKeyMetadata[keyIndex].Status == "Active" {
+			fmt.Printf("Do you want to delete %s and create a new key? [yN] ",
+				aws.StringValue(respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId),
+			)
+			if aws.StringValue(respListAccessKeys.AccessKeyMetadata[keyIndex].Status) == "Active" {
 				fmt.Printf("\nWARNING: This key is currently Active! ")
 			}
 			reader := bufio.NewReader(os.Stdin)
@@ -251,13 +275,18 @@ func main() {
 			AccessKeyId: respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId,
 		})
 		check(err2)
-		fmt.Printf("Deleted access key: %s\n", *respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId)
+		fmt.Printf("Deleted access key: %s\n",
+			aws.StringValue(respListAccessKeys.AccessKeyMetadata[keyIndex].AccessKeyId),
+		)
 	} else if !yesFlag {
 		cleanupAction := "deactivate"
 		if deleteFlag {
 			cleanupAction = "delete"
 		}
-		fmt.Printf("Do you want to create a new key and %s %s? [yN] ", cleanupAction, *respListAccessKeys.AccessKeyMetadata[0].AccessKeyId)
+		fmt.Printf("Do you want to create a new key and %s %s? [yN] ",
+			cleanupAction,
+			aws.StringValue(respListAccessKeys.AccessKeyMetadata[0].AccessKeyId),
+		)
 		reader := bufio.NewReader(os.Stdin)
 		yn, err2 := reader.ReadString('\n')
 		check(err2)
@@ -270,8 +299,8 @@ func main() {
 	// If you do not specify a user name, IAM determines the user name implicitly based on the AWS access key ID signing the request.
 	respCreateAccessKey, err := iamClient.CreateAccessKey(&iam.CreateAccessKeyInput{})
 	check(err)
-	newAccessKeyId := *respCreateAccessKey.AccessKey.AccessKeyId
-	newSecretAccessKey := *respCreateAccessKey.AccessKey.SecretAccessKey
+	newAccessKeyId := aws.StringValue(respCreateAccessKey.AccessKey.AccessKeyId)
+	newSecretAccessKey := aws.StringValue(respCreateAccessKey.AccessKey.SecretAccessKey)
 	fmt.Printf("Created access key: %s\n", newAccessKeyId)
 
 	// Replace key pair in credentials file
