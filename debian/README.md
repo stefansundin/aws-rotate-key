@@ -1,5 +1,8 @@
 ```shell
-sudo apt install devscripts debhelper dh-golang golang golang-any golang-github-aws-aws-sdk-go-v2-dev
+sudo apt install --no-install-recommends devscripts debhelper dh-golang golang golang-any golang-github-aws-aws-sdk-go-v2-dev
+
+# optional:
+sudo apt install --no-install-recommends lintian
 
 # in the repository root:
 git clean -fdX
