@@ -3,12 +3,13 @@ Maintainer: Stefan Sundin <stefan@stefansundin.com>
 Section: devel
 Priority: optional
 Build-Depends:
- debhelper (>= 9.20120909),
+ debhelper (>= 13),
+ debhelper-compat (= 13),
  dh-golang,
 Build-Depends-Arch:
- golang-any,
- golang-github-aws-aws-sdk-go-dev,
-Standards-Version: 4.4.0
+ golang-any (>= 1.19),
+ golang-github-aws-aws-sdk-go-v2-dev,
+Standards-Version: 4.6.2
 Rules-Requires-Root: no
 Homepage: https://github.com/stefansundin/aws-rotate-key
 XS-Go-Import-Path: github.com/stefansundin/aws-rotate-key
@@ -18,5 +19,8 @@ Architecture: any
 Depends:
  ${misc:Depends},
  ${shlibs:Depends},
-Built-Using: ${misc:Built-Using}
+Static-Built-Using: ${misc:Static-Built-Using}
 Description: Easily rotate your AWS access key.
+ When run, the program will list the current access keys associated with your
+ IAM user, and print the steps it has to perform to rotate them.
+ It will then wait for your confirmation before continuing.

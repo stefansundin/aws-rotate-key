@@ -1,4 +1,4 @@
-VERSION = 1.1.0
+VERSION = 1.2.0
 LDFLAGS = -ldflags='-s -w' -trimpath
 
 linux_amd64: export GOOS=linux
