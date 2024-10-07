@@ -82,8 +82,8 @@ func main() {
 	)
 	if sharedConfig.Credentials.AccessKeyID == "" {
 		fmt.Printf("Error loading credentials using profile \"%s\".\n", profileFlag)
-		if profileFlag == "default" {
-			fmt.Println("Perhaps you do not have a default profile in your credentials file?")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
 		}
 		os.Exit(1)
 	}
