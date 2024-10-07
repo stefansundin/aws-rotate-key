@@ -3,7 +3,7 @@ aws-rotate-key (1.2.0-1) noble; urgency=medium
   * Upgrade AWS SDK to aws-sdk-go-v2.
   * Default `-profile` option to the AWS_PROFILE environment variable.
 
- -- Stefan Sundin <stefan@stefansundin.com>  Thu, 08 Feb 2024 20:57:31 -0800
+ -- Stefan Sundin <stefan@stefansundin.com>  Sun, 06 Oct 2024 22:44:01 -0700
 
 aws-rotate-key (1.1.0-1) jammy; urgency=medium
 
