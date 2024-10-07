@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -41,7 +42,7 @@ func init() {
 			fmt.Println("Error: Could not locate your home directory. Please set the AWS_SHARED_CREDENTIALS_FILE environment variable.")
 			os.Exit(1)
 		}
-		credentialsPath = fmt.Sprintf("%s/.aws/credentials", usr.HomeDir)
+		credentialsPath = filepath.Join(usr.HomeDir, ".aws", "credentials")
 	}
 	if _, err := os.Stat(credentialsPath); os.IsNotExist(err) {
 		fmt.Printf("Error locating the credentials file, expected it at: %s\n", credentialsPath)
