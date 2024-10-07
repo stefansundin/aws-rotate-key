@@ -26,7 +26,6 @@ func isU2F(serialNumber string) bool {
 	// Hardware token serial numbers are not ARNs and look like this: GAHT12345678
 	if strings.HasPrefix(serialNumber, "arn:") {
 		split := strings.Split(serialNumber, ":")
-		// fmt.Printf("split len: %d\n", len(split))
 		if len(split) > 5 && strings.HasPrefix(split[5], "u2f/") {
 			return true
 		}
